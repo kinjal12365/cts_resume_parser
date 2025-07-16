@@ -1,0 +1,1 @@
+Create a s3 bucket and dynamo db and give the naming as per the code

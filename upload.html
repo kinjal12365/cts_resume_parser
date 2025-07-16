@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Resume Upload</title>
+</head>
+<body>
+  <h2>Upload Resume (PDF only)</h2>
+  <form id="uploadForm">
+    <input type="file" id="fileInput" accept=".pdf" required />
+    <button type="submit">Upload</button>
+  </form>
+
+  <p id="status"></p>
+
+  <script>
+    document.getElementById('uploadForm').onsubmit = async function(e) {
+      e.preventDefault();
+
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      const status = document.getElementById('status');
+
+      if (!file || file.type !== "application/pdf") {
+        alert("Please select a PDF file.");
+        return;
+      }
+
+      try {
+        // Step 1: Get pre-signed URL from Flask
+        const response = await fetch('http://127.0.0.1:5000/generate-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: file.name })
+        });
+
+        const data = await response.json();
+
+        if (!data.url) {
+          status.innerText = "❌ Failed to get upload URL: " + JSON.stringify(data);
+          return;
+        }
+
+        // Step 2: Upload PDF directly to S3
+        const s3Response = await fetch(data.url, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/pdf' },
+          body: file
+        });
+
+        if (s3Response.ok) {
+          status.innerText = "✅ Resume uploaded to S3 successfully!";
+        } else {
+          status.innerText = "❌ S3 upload failed. Status: " + s3Response.status;
+        }
+
+      } catch (err) {
+        status.innerText = "❌ Error: " + err.message;
+        console.error(err);
+      }
+    };
+  </script>
+</body>
+</html>
