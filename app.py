@@ -1,10 +1,9 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import boto3
 import datetime
-import os
 
 # Setup Flask
-app = Flask(__name__, static_folder='.', static_url_path='')
+app = Flask(__name__)
 
 # AWS configuration
 s3 = boto3.client('s3')
@@ -17,10 +16,10 @@ table_name = 'ResumeMetadata'
 if USE_DYNAMO:
     table = dynamodb.Table(table_name)
 
-# ✅ Serve the upload form at http://localhost:5000/
+# ✅ Serve the upload form using Jinja2 templating
 @app.route('/')
 def serve_form():
-    return app.send_static_file('upload.html')
+    return render_template('upload.html')  # looks inside templates/upload.html
 
 # ✅ Pre-signed URL endpoint
 @app.route('/generate-url', methods=['POST'])
