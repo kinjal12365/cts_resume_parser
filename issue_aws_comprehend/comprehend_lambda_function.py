@@ -13,8 +13,8 @@ from datetime import datetime
 # WARNING: For production, it is strongly recommended to use environment variables
 # instead of hardcoding secrets like API keys.
 
-DESTINATION_BUCKET = "name-extraction-bucket"
-GEMINI_API_KEY = "AIzaSyAug2xooJmJGGPDvTEkDhsKH5VePhKrZPk" # Still needed for experience summary
+DESTINATION_BUCKET = "specify your bucket"
+GEMINI_API_KEY = "specify your api key" # Still needed for experience summary
 # ----------------------------------------------------
 
 
