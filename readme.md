@@ -1,4 +1,4 @@
-<!-- Resume Parser & Skill Extractor System -->
+# Resume Parser & Skill Extractor System 
 
 This project is an end-to-end Resume Parser and Skill Extractor system built using AWS services (S3, Lambda, Bedrock), Flask, and modern NLP tools. It extracts structured candidate data from resumes (PDFs), stores the results in S3, and provides an interactive admin dashboard for analysis and reporting.
 
