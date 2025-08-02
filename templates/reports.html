@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reports - Resume Parser</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
+  <!-- CSS & Wordcloud -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='report_styles.css') }}">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.1.0/wordcloud2.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    #dualChartContainer {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin: 40px auto;
+      max-width: 1500px;
+    }
+
+    .chart-card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      width: 600px;
+      max-width: 100%;
+      flex: 1 1 500px;
+    }
+
+    canvas {
+      background-color: #fff;
+      border: 1px solid #eee;
+      padding: 8px;
+      border-radius: 8px;
+      max-height: 260px !important;
+    }
+
+    .chart-heading {
+      text-align: center;
+      margin-bottom: 16px;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-brand">
+      <i class="fas fa-file-alt"></i>
+      <span>Resume Parser</span>
+    </div>
+    <div class="nav-menu">
+      <a href="/dashboard" class="nav-link">
+        <i class="fas fa-tachometer-alt"></i> Dashboard
+      </a>
+      <a href="reports" class="nav-link active">
+        <i class="fas fa-chart-bar"></i> Reports
+      </a>
+    </div>
+  </nav>
+
+  <div class="main-container">
+    <div class="dashboard-header">
+      <h1>AI-Powered Analytics</h1>
+    </div>
+
+    <div class="reports-grid">
+      <!-- AI Summary Card -->
+      <div class="report-card">
+        <div class="report-card-header">
+          <i class="fas fa-user-tie"></i>
+          <span>Candidate Role Analysis</span>
+        </div>
+        <div id="aiSummaryContainer" class="report-content">
+          <div class="loader">
+            <i class="fas fa-spinner fa-spin"></i> Generating AI summary...
+          </div>
+        </div>
+      </div>
+
+      <!-- Word Cloud Card -->
+      <div class="report-card">
+        <div class="report-card-header">
+          <i class="fas fa-cloud"></i>
+          <span>Top Skills Cloud</span>
+        </div>
+        <div id="wordCloudContainer" class="report-content">
+          <div class="loader">
+            <i class="fas fa-spinner fa-spin"></i> Analyzing skills...
+          </div>
+          <canvas id="wordCloudCanvas"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dual Chart Section -->
+    <div id="dualChartContainer">
+      <!-- Technical Skills Chart -->
+      <div class="chart-card">
+        <div class="chart-heading">Most Repeated Technical Skills</div>
+        <canvas id="skillChart"></canvas>
+      </div>
+
+      <!-- Languages Chart -->
+      <div class="chart-card">
+        <div class="chart-heading">Languages Used by Candidates</div>
+        <canvas id="languageChart"></canvas>
+      </div>
+
+      <!-- UG vs PG Pie Chart -->
+      <div class="chart-card">
+        <div class="chart-heading">Education Level (UG vs PG)</div>
+        <canvas id="educationChart"></canvas>
+      </div>
+
+      <!-- Resume Submissions Chart -->
+      <div class="chart-card">
+        <div class="chart-heading">Resumes Submitted Per Day</div>
+        <canvas id="submissionChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- External Script -->
+  <script src="{{ url_for('static', filename='reports.js') }}"></script>
+
+  <!-- Chart Scripts -->
+  <script>
+    const jsonUrl = 'https://json-dashboard-bucket-testvfinal.s3.us-east-1.amazonaws.com/candidates.json';
+
+    async function fetchAndDisplaySkills() {
+      try {
+        const response = await fetch(jsonUrl);
+        const candidates = await response.json();
+
+        const skillFrequency = {};
+        candidates.forEach(candidate => {
+          const techSkills = candidate.skills?.technical || [];
+          techSkills.forEach(skill => {
+            const normalizedSkill = skill.trim().toLowerCase();
+            skillFrequency[normalizedSkill] = (skillFrequency[normalizedSkill] || 0) + 1;
+          });
+        });
+
+        const sortedSkills = Object.entries(skillFrequency)
+                                   .sort((a, b) => b[1] - a[1])
+                                   .slice(0, 10);
+
+        const labels = sortedSkills.map(([skill]) => skill.toUpperCase());
+        const data = sortedSkills.map(([_, count]) => count);
+
+        new Chart(document.getElementById('skillChart').getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Frequency',
+              data: data,
+              backgroundColor: 'rgba(75, 192, 192, 0.6)',
+              borderColor: 'rgba(75, 192, 192, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                beginAtZero: true,
+                title: { display: true, text: 'Count' }
+              },
+              y: {
+                title: { display: true, text: 'Skills' }
+              }
+            },
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching skills:', error);
+      }
+    }
+
+    async function fetchAndRenderLanguages() {
+      try {
+        const response = await fetch(jsonUrl);
+        const candidates = await response.json();
+
+        const languageFrequency = {};
+        candidates.forEach(candidate => {
+          const langs = candidate.languages;
+          if (Array.isArray(langs)) {
+            langs.forEach(lang => {
+              const cleanLang = lang.trim().toLowerCase();
+              if (cleanLang !== 'not defined') {
+                languageFrequency[cleanLang] = (languageFrequency[cleanLang] || 0) + 1;
+              }
+            });
+          }
+        });
+
+        const labels = Object.keys(languageFrequency).map(lang => lang.charAt(0).toUpperCase() + lang.slice(1));
+        const data = Object.values(languageFrequency);
+
+        new Chart(document.getElementById('languageChart').getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: 'Candidates',
+              data: data,
+              backgroundColor: 'rgba(54, 162, 235, 0.7)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                beginAtZero: true,
+                stepSize: 1,
+                title: { display: true, text: 'Count' }
+              },
+              y: {
+                title: { display: true, text: 'Languages' }
+              }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (context) => `${context.parsed.x} candidate(s)`
+                }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error('Error fetching languages:', error);
+      }
+    }
+
+    async function fetchAndRenderSubmissionChart() {
+      try {
+        const response = await fetch(jsonUrl);
+        const candidates = await response.json();
+
+        const dateCounts = {};
+        const allDates = new Set();
+
+        candidates.forEach(candidate => {
+          const rawDate = candidate.uploadDate;
+          if (!rawDate) return;
+
+          const date = new Date(rawDate).toISOString().split('T')[0];
+          dateCounts[date] = (dateCounts[date] || 0) + 1;
+          allDates.add(date);
+        });
+
+        const today = new Date().toISOString().split('T')[0];
+        allDates.add(today);
+
+        const sortedDates = Array.from(allDates).sort();
+        const counts = sortedDates.map(date => dateCounts[date] || 0);
+
+        const ctx = document.getElementById('submissionChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: sortedDates,
+            datasets: [{
+              label: 'Resume Submissions',
+              data: counts,
+              backgroundColor: 'rgba(153, 102, 255, 0.6)',
+              borderColor: 'rgba(153, 102, 255, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: 'Date'
+                },
+                ticks: {
+                  maxRotation: 60,
+                  minRotation: 45,
+                  autoSkip: true,
+                  font: { size: 10 }
+                }
+              },
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Number of Resumes'
+                },
+                ticks: {
+                  precision: 0,
+                  stepSize: 1
+                }
+              }
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: context => `${context.parsed.y} resume(s)`
+                }
+              }
+            }
+          }
+        });
+      } catch (err) {
+        console.error("Error rendering submission chart:", err);
+      }
+    }
+
+    async function fetchAndRenderEducationChart() {
+      try {
+        const response = await fetch(jsonUrl);
+        const candidates = await response.json();
+
+        let pgCount = 0;
+        let ugCount = 0;
+
+        candidates.forEach(candidate => {
+          const isPG = candidate.isPostGraduate;
+          if (isPG === 1 || isPG === "1") {
+            pgCount++;
+          } else {
+            ugCount++;
+          }
+        });
+
+        const ctx = document.getElementById('educationChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'pie',
+          data: {
+            labels: ['Postgraduate (PG)', 'Undergraduate (UG)'],
+            datasets: [{
+              data: [pgCount, ugCount],
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.6)',
+                'rgba(75, 192, 192, 0.6)'
+              ],
+              borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(75, 192, 192, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'bottom' },
+              tooltip: {
+                callbacks: {
+                  label: context => {
+                    const label = context.label || '';
+                    const value = context.parsed;
+                    const total = pgCount + ugCount;
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return `${label}: ${value} (${percentage}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      } catch (error) {
+        console.error("Error rendering education chart:", error);
+      }
+    }
+
+    async function fetchAndRenderWordCloud() {
+      try {
+        const response = await fetch(jsonUrl);
+        const candidates = await response.json();
+
+        const skillFrequency = {};
+        candidates.forEach(candidate => {
+          const skills = candidate.skills?.technical || [];
+          skills.forEach(skill => {
+            const s = skill.trim().toLowerCase();
+            skillFrequency[s] = (skillFrequency[s] || 0) + 1;
+          });
+        });
+
+        const wordList = Object.entries(skillFrequency).map(([skill, count]) => [skill, count]);
+
+        const canvas = document.getElementById('wordCloudCanvas');
+        document.querySelector('#wordCloudContainer .loader').style.display = 'none';
+        WordCloud(canvas, {
+          list: wordList,
+          gridSize: 10,
+          weightFactor: 6,
+          fontFamily: 'Inter, sans-serif',
+          color: 'random-dark',
+          shrinkToFit: true
+        });
+      } catch (error) {
+        console.error("Error rendering word cloud:", error);
+        document.querySelector('#wordCloudContainer .loader').textContent = "Failed to load word cloud.";
+      }
+    }
+
+    // Call all chart functions
+    fetchAndDisplaySkills();
+    fetchAndRenderLanguages();
+    fetchAndRenderSubmissionChart();
+    fetchAndRenderEducationChart();
+    fetchAndRenderWordCloud();
+  </script>
+</body>
+</html>

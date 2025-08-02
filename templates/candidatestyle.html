@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>S3 Resume Viewer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='candidatestyle.css') }}">
+    <style>
+        .back-button {
+            display: inline-block;
+            margin: 20px;
+            padding: 8px 16px;
+            background-color: #1f0ae1;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .back-button:hover {
+            background-color: #28026d;
+        }
+    </style>
+</head>
+<body>
+
+<a href="/dashboard" class="back-button">← Back to Dashboard</a>
+
+<div class="container">
+    <h1>📄 Uploaded Resumes</h1>
+    <table id="filesTable">
+        <thead>
+            <tr>
+                <th>File Name</th>
+                <th>Size (KB)</th>
+                <th>Last Modified</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            <tr><td colspan="4">Loading files...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="{{ url_for('static', filename='candidateresume.js') }}"></script>
+</body>
+</html>

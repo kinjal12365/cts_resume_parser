@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Resume Parser</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <i class="fas fa-file-alt"></i>
+            <span>Resume Parser Admin</span>
+        </div>
+        <div class="nav-menu">
+            <a href="#" class="nav-link active">
+                <i class="fas fa-tachometer-alt"></i>
+                Dashboard
+            </a>
+            <a href="{{ url_for('candidate_pdfs') }}" class="nav-link">
+                <i class="fas fa-users"></i>
+                Candidate Resumes
+            </a>
+            <a href="{{ url_for('reports') }}" class="nav-link">
+                <i class="fas fa-chart-bar"></i>
+                Reports
+            </a>
+        </div>
+        <div class="nav-user">
+            <span class="user-name">Admin</span>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1>Admin Dashboard</h1>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="downloadCSV()">
+                    <i class="fas fa-download"></i>
+                    Export CSV
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-file-upload"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalUploads">0</h3>
+                    <p>Total Uploads</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="successRate">0%</h3>
+                    <p>Success Rate</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalErrors">0</h3>
+                    <p>Total Errors</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon info">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 id="totalCandidates">0</h3>
+                    <p>Total Candidates</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search candidates by name, skills, or experience...">
+            </div>
+            <div class="filters">
+                <select id="skillFilter" class="filter-select">
+                    <option value="">All Skills</option>
+                    <option value="python">Python</option>
+                    <option value="javascript">JavaScript</option>
+                    <option value="java">Java</option>
+                    <option value="react">React</option>
+                    <option value="nodejs">Node.js</option>
+                    <option value="sql">SQL</option>
+                </select>
+                <button class="btn btn-outline" onclick="clearFilters()">
+                    <i class="fas fa-times"></i>
+                    Clear Filter
+                </button>
+            </div>
+        </div>
+
+        <!-- Candidates Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <h2>Uploaded Resumes & Profiles</h2>
+                <div class="table-actions">
+                    <span id="candidateCount"></span>
+                </div>
+            </div>
+            
+            <div class="table-wrapper">
+                <table class="candidates-table">
+                    <thead>
+                        <tr>
+                            <th>
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                            </th>
+                            <th onclick="sortTable(1)">Name <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable(2)">Email <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable(3)">Skills <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable(4)">Experience Summary <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable(5)">Upload Date <i class="fas fa-sort"></i></th>
+                            <th onclick="sortTable(6)">Status <i class="fas fa-sort"></i></th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="candidatesTableBody">
+                        <!-- Table rows will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="pagination-btn" onclick="changePage(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="page-info">Page <span id="currentPage">1</span> of <span id="totalPages"></span></span>
+                <button class="pagination-btn" onclick="changePage(1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Resume Details -->
+    <div id="resumeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Resume Details</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Download Button -->
+    <!-- Download Button at Top Right -->
+    <div class="json-download-button">
+        <a class="btn btn-success" href="/download-anonymized-json">
+            <i class="fas fa-file-download"></i>
+            Download JSON for Testing
+        </a>
+    </div>
+    <script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+</body>
+</html>

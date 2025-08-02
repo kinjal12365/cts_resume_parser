@@ -1,0 +1,108 @@
+body {
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  display: flex;
+
+  background-image: url("background.jpg"); /* assumes CSS and image are both in static/ */
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+
+/* --- Sidebar (Modern Frosted Design) --- */
+.navbar {
+  width: 250px;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  padding: 1.5rem 1rem;
+  box-sizing: border-box;
+
+  background: rgba(0, 38, 66, 0.55); /* Deep blue transparent */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.nav-brand {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.nav-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: #e5e7eb;
+  border-radius: 0.5rem;
+  transition: background 0.3s, color 0.3s;
+}
+
+.nav-link.active,
+.nav-link:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+}
+
+/* --- Main Dashboard Container --- */
+.main-container {
+  margin-left: 250px;
+  padding: 2rem;
+  width: calc(100% - 250px);
+  box-sizing: border-box;
+  color: #31a9bb; /* fallback text color */
+}
+
+.dashboard-header h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+}
+
+/* --- Report Cards Grid --- */
+.reports-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.report-card {
+  background-color: #fff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+}
+
+.report-card-header {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.report-content {
+  height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+/* --- Loader Style --- */
+.loader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #6b7280;
+}
+
+/* --- Word Cloud Canvas --- */
+#wordCloudCanvas {
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,34 @@
+{
+    "candidateId": "CAND_CBC226BB3552",
+    "uploadDate": "2025-07-28T08:00:32.685570Z",
+    "name": "Mirza Imad Baig Nagpur",
+    "email": "mirzaimadbaig871@gmail.com",
+    "phoneNumber": "+91-7620021324",
+    "skills": {
+        "technical": [
+            "Github",
+            "Machine Learning",
+            "Matplotlib",
+            "Natural Language Processing",
+            "Nlp",
+            "Nltk",
+            "Numpy",
+            "Pandas",
+            "Python",
+            "Pytorch",
+            "Scikit-Learn",
+            "Sql",
+            "Tensorflow",
+            "Troubleshooting"
+        ],
+        "nonTechnical": [
+            "Debugging",
+            "Problem Solving",
+            "Troubleshooting"
+        ]
+    },
+    "languages": [
+        "English"
+    ],
+    "experienceSummary": "A Data Science student with experience in NLP and machine learning projects, including text summarization and spoiler detection."
+}

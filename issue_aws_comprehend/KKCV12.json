@@ -1,0 +1,47 @@
+{
+    "candidateId": "CAND_AED6EC8E8622",
+    "uploadDate": "2025-07-28T08:03:17.347392Z",
+    "name": "Krish Naik",
+    "email": "kinjalkanjilal333@gmail.com",
+    "phoneNumber": "+91 6290201761",
+    "skills": {
+        "technical": [
+            "Ai",
+            "Airflow",
+            "Api Gateway",
+            "Aws",
+            "Computer Vision",
+            "Containerization",
+            "Css",
+            "Data Analysis",
+            "Deep Learning",
+            "Docker",
+            "Etl",
+            "Flask",
+            "Git",
+            "Grafana",
+            "Html",
+            "Javascript",
+            "Keras",
+            "Lambda",
+            "Machine Learning",
+            "Mlflow",
+            "Mlops",
+            "Model Monitoring",
+            "Natural Language Processing",
+            "Nlp",
+            "Postgresql",
+            "Python",
+            "S3",
+            "Serverless",
+            "Sql"
+        ],
+        "nonTechnical": []
+    },
+    "languages": [
+        "Bengali",
+        "English",
+        "Hindi"
+    ],
+    "experienceSummary": "A Data Science professional with expertise in MLOps,  AI agent development, and  cloud platforms (AWS)."
+}

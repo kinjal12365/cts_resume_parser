@@ -1,0 +1,9 @@
+pdfminer.six
+requests
+boto3
+botocore
+Flask
+requests
+json
+faker
+

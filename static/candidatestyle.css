@@ -1,0 +1,37 @@
+body {
+  font-family: Arial, sans-serif;
+  padding: 30px;
+  background: url('/static/background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: #010608; /* Light blue text */
+}
+
+.container {
+  max-width: 800px;
+  margin: auto;
+  background: rgba(255, 255, 255, 0.85); /* White box with slight transparency */
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #ccc;
+  text-align: left;
+  color: #000000; /* Light blue text inside table */
+}
+
+a {
+  color: #000507;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}

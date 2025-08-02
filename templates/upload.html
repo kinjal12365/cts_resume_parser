@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Resume Upload</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <!-- Admin Login Button -->
+  <div class="nav">
+    <a id="admin-login" href="/admin" class="admin-btn">Admin Login</a>
+  </div>
+
+  <!-- Upload Section -->
+  <div class="container">
+    <h1>Resume Parser</h1>
+    <p>Upload your resume (PDF only) and let us handle the rest.</p>
+
+    <form id="uploadForm">
+      <label class="upload-label" for="fileInput">Choose PDF File</label>
+      <input type="file" id="fileInput" accept=".pdf" required />
+      <button type="submit" class="upload-btn" aria-label="Upload Resume">Upload</button>
+    </form>
+
+    <div id="status" class="status-box"></div>
+  </div>
+
+  <script>
+    document.getElementById('uploadForm').onsubmit = async function(e) {
+      e.preventDefault();
+
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      const status = document.getElementById('status');
+
+      if (!file || file.type !== "application/pdf") {
+        status.innerText = "❌ Please select a valid PDF file.";
+        status.className = "status-box error";
+        return;
+      }
+
+      try {
+        status.innerText = "🔄 Getting upload URL...";
+        status.className = "status-box info";
+
+        const response = await fetch('/generate-url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filename: file.name })
+        });
+
+        const data = await response.json();
+
+        if (!data.url) {
+          status.innerText = "❌ Failed to get upload URL: " + JSON.stringify(data);
+          status.className = "status-box error";
+          return;
+        }
+
+        status.innerText = "⬆️ Uploading to S3...";
+        status.className = "status-box info";
+
+        const s3Response = await fetch(data.url, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/pdf' },
+          body: file
+        });
+
+        if (s3Response.ok) {
+          status.innerText = "✅ Resume uploaded successfully!";
+          status.className = "status-box success";
+        } else {
+          status.innerText = "❌ Upload failed. Status: " + s3Response.status;
+          status.className = "status-box error";
+        }
+      } catch (err) {
+        status.innerText = "❌ Error: " + err.message;
+        status.className = "status-box error";
+        console.error(err);
+      }
+    };
+  </script>
+</body>
+</html>
